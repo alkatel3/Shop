@@ -16,7 +16,7 @@ namespace Shop.Controllers
         public IActionResult Index()
         {
             List<Category> Categories = db.Categories.ToList();
-            return View();
+            return View(Categories);
         }
     }
 }
