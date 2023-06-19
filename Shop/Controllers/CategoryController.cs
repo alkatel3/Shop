@@ -18,5 +18,10 @@ namespace Shop.Controllers
             List<Category> Categories = db.Categories.ToList();
             return View(Categories);
         }
+
+        public IActionResult Create()
+        {
+            return View();
+        }
     }
 }
