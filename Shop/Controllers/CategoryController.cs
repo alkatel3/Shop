@@ -27,9 +27,19 @@ namespace Shop.Controllers
         [HttpPost]
         public IActionResult Create(Category category)
         {
-            db.Categories.Add(category);
-            db.SaveChanges();
-            return RedirectToAction("Index");
+            if (category.Name == category.DisplayOrder.ToString())
+            {
+                ModelState.AddModelError("name", "The Display Order cannot exactly match the Name.");
+            }
+
+            if (ModelState.IsValid)
+            {
+                db.Categories.Add(category);
+                db.SaveChanges();
+                return RedirectToAction("Index");
+            }
+
+            return View();
         }
     }
 }
