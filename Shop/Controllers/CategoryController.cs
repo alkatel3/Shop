@@ -41,5 +41,34 @@ namespace Shop.Controllers
 
             return View();
         }
+
+        public IActionResult Edit(int? id)
+        {
+            if (id == null || id == 0)
+            {
+                return NotFound();
+            }
+
+            Category? categoryDb = db.Categories.Find(id);
+            if (categoryDb == null)
+            {
+                return NotFound();
+            }
+
+            return View(categoryDb);
+        }
+
+        [HttpPost]
+        public IActionResult Edit(Category category)
+        {
+            if (ModelState.IsValid)
+            {
+                db.Categories.Update(category);
+                db.SaveChanges();
+                return RedirectToAction("Index");
+            }
+
+            return View();
+        }
     }
 }
