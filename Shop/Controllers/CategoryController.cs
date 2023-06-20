@@ -70,5 +70,36 @@ namespace Shop.Controllers
 
             return View();
         }
+
+        public IActionResult Delete(int? id)
+        {
+            if (id == null || id == 0)
+            {
+                return NotFound();
+            }
+
+            Category? categoryDb = db.Categories.Find(id);
+            if (categoryDb == null)
+            {
+                return NotFound();
+            }
+
+            return View(categoryDb);
+        }
+
+        [HttpPost, ActionName("Delete")]
+        public IActionResult DeletePost(int? id)
+        {
+            Category? category = db.Categories.Find(id);
+
+            if(category == null)
+            {
+                return NotFound();
+            }
+
+            db.Categories.Remove(category);
+            db.SaveChanges();
+            return RedirectToAction("Index");
+        }
     }
 }
