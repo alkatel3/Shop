@@ -36,6 +36,7 @@ namespace Shop.Controllers
             {
                 db.Categories.Add(category);
                 db.SaveChanges();
+                TempData["success"] = "Category created successfully";
                 return RedirectToAction("Index");
             }
 
@@ -65,6 +66,7 @@ namespace Shop.Controllers
             {
                 db.Categories.Update(category);
                 db.SaveChanges();
+                TempData["success"] = "Category undate successfully";
                 return RedirectToAction("Index");
             }
 
@@ -99,6 +101,7 @@ namespace Shop.Controllers
 
             db.Categories.Remove(category);
             db.SaveChanges();
+            TempData["success"] = "Category deleted successfully";
             return RedirectToAction("Index");
         }
     }
