@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.6.33801.468
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shop", "Shop\Shop.csproj", "{82994E0D-82FC-4048-B77C-D8E6A44C586C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shop", "Shop\Shop.csproj", "{82994E0D-82FC-4048-B77C-D8E6A44C586C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShowRazor_Temp", "ShowRazor_Temp\ShowRazor_Temp.csproj", "{888CB549-37E0-464B-A298-68D945CE4CFE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{82994E0D-82FC-4048-B77C-D8E6A44C586C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{82994E0D-82FC-4048-B77C-D8E6A44C586C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{82994E0D-82FC-4048-B77C-D8E6A44C586C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{888CB549-37E0-464B-A298-68D945CE4CFE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{888CB549-37E0-464B-A298-68D945CE4CFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{888CB549-37E0-464B-A298-68D945CE4CFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{888CB549-37E0-464B-A298-68D945CE4CFE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
