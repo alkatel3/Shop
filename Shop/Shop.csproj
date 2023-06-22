@@ -16,4 +16,8 @@
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Contracts" Version="5.0.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Shop.DataAccessLayer\Shop.DataAccessLayer.csproj" />
+  </ItemGroup>
+
 </Project>
