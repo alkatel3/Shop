@@ -1,21 +1,22 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Shop.DataAccessLayer.Data;
+using Shop.DataAccessLayer.Repository.IRepository;
 using Shop.Models;
 
 namespace Shop.Controllers
 {
     public class CategoryController : Controller
     {
-        private readonly ApplicationDbContext db;
+        private readonly ICategoryRepository categotyRepository;
 
-        public CategoryController(ApplicationDbContext db)
+        public CategoryController(ICategoryRepository categotyRepository)
         {
-            this.db = db;
+            this.categotyRepository = categotyRepository;
         }
 
         public IActionResult Index()
         {
-            List<Category> Categories = db.Categories.ToList();
+            List<Category> Categories = categotyRepository.GetAll().ToList();
             return View(Categories);
         }
 
@@ -34,8 +35,8 @@ namespace Shop.Controllers
 
             if (ModelState.IsValid)
             {
-                db.Categories.Add(category);
-                db.SaveChanges();
+                categotyRepository.Add(category);
+                categotyRepository.Save();
                 TempData["success"] = "Category created successfully";
                 return RedirectToAction("Index");
             }
@@ -50,7 +51,7 @@ namespace Shop.Controllers
                 return NotFound();
             }
 
-            Category? categoryDb = db.Categories.Find(id);
+            Category? categoryDb = categotyRepository.Get(c=>c.Id==id);
             if (categoryDb == null)
             {
                 return NotFound();
@@ -64,8 +65,8 @@ namespace Shop.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Categories.Update(category);
-                db.SaveChanges();
+                categotyRepository.Update(category);
+                categotyRepository.Save();
                 TempData["success"] = "Category undate successfully";
                 return RedirectToAction("Index");
             }
@@ -80,7 +81,7 @@ namespace Shop.Controllers
                 return NotFound();
             }
 
-            Category? categoryDb = db.Categories.Find(id);
+            Category? categoryDb = categotyRepository.Get(c => c.Id == id);
             if (categoryDb == null)
             {
                 return NotFound();
@@ -92,15 +93,15 @@ namespace Shop.Controllers
         [HttpPost, ActionName("Delete")]
         public IActionResult DeletePost(int? id)
         {
-            Category? category = db.Categories.Find(id);
+            Category? category = categotyRepository.Get(c => c.Id == id);
 
-            if(category == null)
+            if (category == null)
             {
                 return NotFound();
             }
 
-            db.Categories.Remove(category);
-            db.SaveChanges();
+            categotyRepository.Delete(category);
+            categotyRepository.Save();
             TempData["success"] = "Category deleted successfully";
             return RedirectToAction("Index");
         }
