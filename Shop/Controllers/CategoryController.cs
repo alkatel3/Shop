@@ -7,16 +7,16 @@ namespace Shop.Controllers
 {
     public class CategoryController : Controller
     {
-        private readonly ICategoryRepository categotyRepository;
+        private readonly IUnitOfWork UoW;
 
-        public CategoryController(ICategoryRepository categotyRepository)
+        public CategoryController(IUnitOfWork unitOfWork)
         {
-            this.categotyRepository = categotyRepository;
+            UoW = unitOfWork;
         }
 
         public IActionResult Index()
         {
-            List<Category> Categories = categotyRepository.GetAll().ToList();
+            List<Category> Categories = UoW.Category.GetAll().ToList();
             return View(Categories);
         }
 
@@ -35,8 +35,8 @@ namespace Shop.Controllers
 
             if (ModelState.IsValid)
             {
-                categotyRepository.Add(category);
-                categotyRepository.Save();
+                UoW.Category.Add(category);
+                UoW.Save();
                 TempData["success"] = "Category created successfully";
                 return RedirectToAction("Index");
             }
@@ -51,7 +51,7 @@ namespace Shop.Controllers
                 return NotFound();
             }
 
-            Category? categoryDb = categotyRepository.Get(c=>c.Id==id);
+            Category? categoryDb = UoW.Category.Get(c=>c.Id==id);
             if (categoryDb == null)
             {
                 return NotFound();
@@ -65,8 +65,8 @@ namespace Shop.Controllers
         {
             if (ModelState.IsValid)
             {
-                categotyRepository.Update(category);
-                categotyRepository.Save();
+                UoW.Category.Update(category);
+                UoW.Save();
                 TempData["success"] = "Category undate successfully";
                 return RedirectToAction("Index");
             }
@@ -81,7 +81,7 @@ namespace Shop.Controllers
                 return NotFound();
             }
 
-            Category? categoryDb = categotyRepository.Get(c => c.Id == id);
+            Category? categoryDb = UoW.Category.Get(c => c.Id == id);
             if (categoryDb == null)
             {
                 return NotFound();
@@ -93,15 +93,15 @@ namespace Shop.Controllers
         [HttpPost, ActionName("Delete")]
         public IActionResult DeletePost(int? id)
         {
-            Category? category = categotyRepository.Get(c => c.Id == id);
+            Category? category = UoW.Category.Get(c => c.Id == id);
 
             if (category == null)
             {
                 return NotFound();
             }
 
-            categotyRepository.Delete(category);
-            categotyRepository.Save();
+            UoW.Category.Delete(category);
+            UoW.Save();
             TempData["success"] = "Category deleted successfully";
             return RedirectToAction("Index");
         }
