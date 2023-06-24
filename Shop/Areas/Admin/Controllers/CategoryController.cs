@@ -3,8 +3,9 @@ using Shop.DataAccessLayer.Data;
 using Shop.DataAccessLayer.Repository.IRepository;
 using Shop.Models;
 
-namespace Shop.Controllers
+namespace Shop.Areas.Admin.Controllers
 {
+    [Area("Admin")]
     public class CategoryController : Controller
     {
         private readonly IUnitOfWork UoW;
@@ -51,7 +52,7 @@ namespace Shop.Controllers
                 return NotFound();
             }
 
-            Category? categoryDb = UoW.Category.Get(c=>c.Id==id);
+            Category? categoryDb = UoW.Category.Get(c => c.Id == id);
             if (categoryDb == null)
             {
                 return NotFound();
