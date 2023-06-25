@@ -13,7 +13,7 @@ namespace Shop.Models
         [Required]
         public string ISBN { get; set;}
         [Required]
-        public string Auther { get; set; }
+        public string Author { get; set; }
         [Required]
         [DisplayName("List Price")]
         [Range(1, 1000)]
