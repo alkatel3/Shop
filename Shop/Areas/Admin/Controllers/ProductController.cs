@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Shop.DataAccessLayer.Data;
 using Shop.DataAccessLayer.Repository.IRepository;
 using Shop.Models;
+using System.Collections.Generic;
 
 namespace Shop.Areas.Admin.Controllers
 {
@@ -18,6 +20,12 @@ namespace Shop.Areas.Admin.Controllers
         public IActionResult Index()
         {
             List<Product> products = UoW.Product.GetAll().ToList();
+            IEnumerable<SelectListItem> CategoryList = UoW.Category
+                .GetAll().Select(c => new SelectListItem
+                {
+                    Text = c.Name,
+                    Value = c.Id.ToString()
+                });
             return View(products);
         }
 
