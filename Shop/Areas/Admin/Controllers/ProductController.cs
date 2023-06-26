@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Shop.DataAccessLayer.Data;
 using Shop.DataAccessLayer.Repository.IRepository;
 using Shop.Models;
+using Shop.Models.ViewModels;
 using System.Collections.Generic;
 
 namespace Shop.Areas.Admin.Controllers
@@ -32,22 +33,42 @@ namespace Shop.Areas.Admin.Controllers
                 Value = c.Id.ToString()
             });
 
-            //ViewBag.CategoryList = CategoryList;
-            ViewData["CategoryList"] = CategoryList;
-            return View();
+            ProductVM productVM = new ProductVM
+            {
+                CategoryList = UoW.Category
+                .GetAll().Select(c => new SelectListItem
+                {
+                    Text = c.Name,
+                    Value = c.Id.ToString()
+                }),
+                Product = new Product()
+            };
+            return View(productVM);
         }
 
         [HttpPost]
-        public IActionResult Create(Product product)
+        public IActionResult Create(ProductVM productVM)
         {
             if (ModelState.IsValid)
             {
-                UoW.Product.Add(product);
+                UoW.Product.Add(productVM.Product);
                 UoW.Save();
                 TempData["success"] = "Category created successfully";
                 return RedirectToAction("Index");
             }
-            return View();
+            else
+            {
+                productVM = new ProductVM
+                {
+                    CategoryList = UoW.Category
+                    .GetAll().Select(c => new SelectListItem
+                    {
+                        Text = c.Name,
+                        Value = c.Id.ToString()
+                    }),
+                };
+                return View(productVM);
+            }
         }
 
         public IActionResult Edit(int? id)
