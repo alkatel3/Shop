@@ -38,5 +38,6 @@ namespace Shop.Models
         public int CategoryId { get; set; }
         [ForeignKey("CatergoryId")]
         public Category Category { get; set; }
+        public string ImageUrl { get; set; }
     }
 }
