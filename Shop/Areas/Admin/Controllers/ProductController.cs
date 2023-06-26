@@ -20,17 +20,19 @@ namespace Shop.Areas.Admin.Controllers
         public IActionResult Index()
         {
             List<Product> products = UoW.Product.GetAll().ToList();
-            IEnumerable<SelectListItem> CategoryList = UoW.Category
-                .GetAll().Select(c => new SelectListItem
-                {
-                    Text = c.Name,
-                    Value = c.Id.ToString()
-                });
             return View(products);
         }
 
         public IActionResult Create()
         {
+            IEnumerable<SelectListItem> CategoryList = UoW.Category
+            .GetAll().Select(c => new SelectListItem
+            {
+                Text = c.Name,
+                Value = c.Id.ToString()
+            });
+
+            ViewBag.CategoryList = CategoryList;
             return View();
         }
 
