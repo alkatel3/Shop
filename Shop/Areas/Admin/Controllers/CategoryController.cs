@@ -68,7 +68,7 @@ namespace Shop.Areas.Admin.Controllers
             {
                 UoW.Category.Update(category);
                 UoW.Save();
-                TempData["success"] = "Category undate successfully";
+                TempData["success"] = "Category undated successfully";
                 return RedirectToAction("Index");
             }
 
