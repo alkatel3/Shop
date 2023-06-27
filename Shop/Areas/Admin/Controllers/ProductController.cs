@@ -116,6 +116,7 @@ namespace Shop.Areas.Admin.Controllers
             return Json(new { data = products });
         }
 
+        [HttpDelete]
         public IActionResult Delete(int? id)
         {
             var product = UoW.Product.Get(p => p.Id == id);
