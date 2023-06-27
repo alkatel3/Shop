@@ -24,15 +24,8 @@ namespace Shop.Areas.Admin.Controllers
             return View(products);
         }
 
-        public IActionResult Create()
+        public IActionResult Upsert(int? id)
         {
-            IEnumerable<SelectListItem> CategoryList = UoW.Category
-            .GetAll().Select(c => new SelectListItem
-            {
-                Text = c.Name,
-                Value = c.Id.ToString()
-            });
-
             ProductVM productVM = new ProductVM
             {
                 CategoryList = UoW.Category
@@ -43,11 +36,22 @@ namespace Shop.Areas.Admin.Controllers
                 }),
                 Product = new Product()
             };
-            return View(productVM);
+            if (id == null || id==0)
+            {
+                //Create
+                return View(productVM);
+            }
+            else
+            {
+                //Update
+                productVM.Product = UoW.Product.Get(p => p.Id == id);
+                return View(productVM);
+
+            }
         }
 
         [HttpPost]
-        public IActionResult Create(ProductVM productVM)
+        public IActionResult Upsert(ProductVM productVM, IFormFile? file)
         {
             if (ModelState.IsValid)
             {
@@ -69,35 +73,6 @@ namespace Shop.Areas.Admin.Controllers
                 };
                 return View(productVM);
             }
-        }
-
-        public IActionResult Edit(int? id)
-        {
-            if(id==null && id == 0)
-            {
-                return NotFound();
-            }
-
-            Product? productDb = UoW.Product.Get(p => p.Id == id);
-            if (productDb == null)
-            {
-                return NotFound();
-            }
-
-            return View(productDb);
-        }
-
-        [HttpPost]
-        public IActionResult Edit(Product product)
-        {
-            if (ModelState.IsValid)
-            {
-                UoW.Product.Update(product);
-                UoW.Save();
-                TempData["success"] = "Category updated successfully";
-                return RedirectToAction("Index");
-            }
-            return View();
         }
 
         public IActionResult Delete(int? id)
