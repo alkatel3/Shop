@@ -1,10 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Shop.DataAccessLayer.Data;
 using Shop.DataAccessLayer.Repository.IRepository;
 using Shop.Models;
 using Shop.Models.ViewModels;
-using System.Collections.Generic;
 
 namespace Shop.Areas.Admin.Controllers
 {
@@ -12,10 +10,12 @@ namespace Shop.Areas.Admin.Controllers
     public class ProductController:Controller
     {
         private readonly IUnitOfWork UoW;
+        private readonly IWebHostEnvironment webHostEnvironment;
 
-        public ProductController(IUnitOfWork unitOfWork)
+        public ProductController(IUnitOfWork unitOfWork, IWebHostEnvironment webHostEnvironment)
         {
             UoW = unitOfWork;
+            this.webHostEnvironment = webHostEnvironment;
         }
 
         public IActionResult Index()
@@ -55,6 +55,19 @@ namespace Shop.Areas.Admin.Controllers
         {
             if (ModelState.IsValid)
             {
+                string wwwRootPath = webHostEnvironment.WebRootPath;
+                if (file != null)
+                {
+                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                    string productPath = Path.Combine(wwwRootPath, @"images\product");
+
+                    using (var fileStream = new FileStream(Path.Combine(productPath, fileName), FileMode.Create))
+                    {
+                        file.CopyTo(fileStream);
+                    }
+
+                    productVM.Product.ImageUrl = @"\images\product\" + fileName;
+                }
                 UoW.Product.Add(productVM.Product);
                 UoW.Save();
                 TempData["success"] = "Category created successfully";
