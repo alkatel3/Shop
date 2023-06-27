@@ -48,9 +48,7 @@
                         <td>@category.ISBN</td>
                         <td>@category.Price</td>
                         <td>@category.Author</td>
-                        <td>
-
-                        </td>
+                        <td>@category.Category.Name</td>
                         <td>
                             <div class="w-75 btn-group" role="group">
                                 <a asp-controller="Product" asp-action="Upsert" asp-route-id="@category.Id" class="btn btn-primary mx-2">

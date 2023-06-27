@@ -20,7 +20,7 @@ namespace Shop.Areas.Admin.Controllers
 
         public IActionResult Index()
         {
-            List<Product> products = UoW.Product.GetAll().ToList();
+            List<Product> products = UoW.Product.GetAll(includeProperties: "Category").ToList();
             return View(products);
         }
 

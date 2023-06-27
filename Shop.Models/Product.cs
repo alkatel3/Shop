@@ -37,7 +37,7 @@ namespace Shop.Models
         public double Price100 { get; set; }
 
         public int CategoryId { get; set; }
-        [ForeignKey("CatergoryId")]
+        [ForeignKey("CategoryId")]
         [ValidateNever]
         public Category Category { get; set; }
         [ValidateNever]
