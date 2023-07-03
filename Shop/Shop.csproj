@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Shop.DataAccessLayer\Shop.DataAccessLayer.csproj" />
+    <ProjectReference Include="..\Shop.Utility\Shop.Utility.csproj" />
   </ItemGroup>
 
   <ItemGroup>
