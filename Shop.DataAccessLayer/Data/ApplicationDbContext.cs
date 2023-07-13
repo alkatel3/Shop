@@ -10,7 +10,8 @@ namespace Shop.DataAccessLayer.Data
         public DbSet<Category> Categories { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<ApplicationUser> ApplicationUsers { get;set;}
-
+        public DbSet<Company> Companies { get; set; }
+ 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) 
             : base(options)
         {
@@ -25,6 +26,40 @@ namespace Shop.DataAccessLayer.Data
                 new Category { Id = 2, Name = "SciFi", DisplayOrder = 2 },
                 new Category { Id = 3, Name = "History", DisplayOrder = 3 }
                 );
+
+            modelBuilder.Entity<Company>().HasData(
+                new Company
+                {
+                    Id = 1,
+                    Name = "Tech Solution",
+                    StreetAddress = "123 Tech St",
+                    City = "Tech City",
+                    PostalCode = "12121",
+                    State = "IL",
+                    PhoneNumber = "6669900009"
+                },
+                new Company
+                {
+                    Id = 2,
+                    Name = "Vivid Books",
+                    StreetAddress = "999 Vid St",
+                    City = "Vid City",
+                    PostalCode = "66666",
+                    State = "IL",
+                    PhoneNumber = "6555777773"
+                },
+                new Company
+                {
+                    Id = 3,
+                    Name = "Readers Clib",
+                    StreetAddress = "999 Main St",
+                    City = "Lala land",
+                    PostalCode = "99999",
+                    State = "Ny",
+                    PhoneNumber = "3333444442"
+                }
+                );
+
 
             modelBuilder.Entity<Product>().HasData(
                 new Product
