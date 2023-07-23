@@ -4,18 +4,18 @@ using Shop.Models;
 
 namespace Shop.DataAccessLayer.Repository
 {
-    public class CategoryRepository : Repository<Category>, ICategoryRepository
+    public class ShoppingCartRepository : Repository<ShoppingCart>, IShoppingCartRepository
     {
         private readonly ApplicationDbContext db;
         
-        public CategoryRepository(ApplicationDbContext db) : base(db)
+        public ShoppingCartRepository(ApplicationDbContext db) : base(db)
         {
             this.db = db;
         }
 
-        public void Update(Category category)
+        public void Update(ShoppingCart shoppingCart)
         {
-            dbSet.Update(category);
+            dbSet.Update(shoppingCart);
         }
     }
 }
