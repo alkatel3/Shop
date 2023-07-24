@@ -46,7 +46,7 @@ namespace Shop.Areas.Customer.Controllers
             var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
             cart.ApplicationUserId = userId;
 
-            ShoppingCart CardDb = UoW.ShoppingCart.Get(c => c.ApplicationUserId == userId &&
+            ShoppingCart CardDb = UoW.ShoppingCart.Get(c =>   c.ApplicationUserId == userId &&
                                                             c.ProductId == cart.ProductId);
             if (CardDb != null)
             {
@@ -57,7 +57,8 @@ namespace Shop.Areas.Customer.Controllers
             {
                 UoW.ShoppingCart.Add(cart);
             }
-
+            TempData["success"] = "Cart updated successfully"
+;
             UoW.Save();
 
             return RedirectToAction("Index");
