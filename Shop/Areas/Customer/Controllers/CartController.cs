@@ -38,6 +38,42 @@ namespace Shop.Areas.Customer.Controllers
             return View(ShoppingCartVM);
         }
 
+        public IActionResult Plus(int cartId)
+        {
+            var cartDb = UoW.ShoppingCart.Get(c => c.Id == cartId);
+            cartDb.Count += 1;
+            UoW.ShoppingCart.Update(cartDb);
+            UoW.Save();
+            return RedirectToAction(nameof(Index));
+        }
+        public IActionResult Minus(int cartId)
+        {
+            var cartDb = UoW.ShoppingCart.Get(c => c.Id == cartId);
+            if (cartDb.Count <= 1)
+            {
+                UoW.ShoppingCart.Delete(cartDb);
+            }
+            else
+            {
+                cartDb.Count -= 1;
+                UoW.ShoppingCart.Update(cartDb);
+            }
+
+            UoW.Save();
+            return RedirectToAction(nameof(Index));
+
+        }
+        public IActionResult Remove(int cartId)
+        {
+            var cartDb = UoW.ShoppingCart.Get(c => c.Id == cartId);
+            if (cartDb != null)
+            {
+                UoW.ShoppingCart.Delete(cartDb);
+                UoW.Save();
+            }
+            return RedirectToAction(nameof(Index));
+        }
+
         private double GetPriceBasedOnQuantity(ShoppingCart shoppincCart)
         {
             if (shoppincCart.Count <= 50)
