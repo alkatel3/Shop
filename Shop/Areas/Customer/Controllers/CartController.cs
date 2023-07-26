@@ -5,6 +5,7 @@ using Shop.DataAccessLayer.Repository.IRepository;
 using Shop.Models;
 using Shop.Models.ViewModels;
 using Shop.Utility;
+using Stripe.Checkout;
 using System.Security.Claims;
 
 namespace Shop.Areas.Customer.Controllers
@@ -157,7 +158,40 @@ namespace Shop.Areas.Customer.Controllers
 
 			if (applicationUser.CompanyId.GetValueOrDefault() == 0)
 			{
+                var domain = "https://localhost:7293/";
 
+                var options = new SessionCreateOptions
+                {
+                    SuccessUrl = domain + $"customer/cart/OrderConfirmation?id={ShoppingCartVM.OrderHeader.Id}",
+                    CancelUrl = domain + "customer/cart/index",
+                    LineItems = new List<SessionLineItemOptions>(),
+                    Mode = "payment",
+                };
+
+                foreach(var cart in ShoppingCartVM.ShoppingCartList)
+                {
+                    var seccionLineItem = new SessionLineItemOptions
+                    {
+                        PriceData = new SessionLineItemPriceDataOptions
+                        {
+                            UnitAmount = (long)(cart.Price * 100),
+                            Currency = "usd",
+                            ProductData = new SessionLineItemPriceDataProductDataOptions
+                            {
+                                Name = cart.Product.Title
+                            }
+                        },
+                        Quantity = cart.Count,
+                    };
+                    options.LineItems.Add(seccionLineItem);
+				}
+                var service = new SessionService();
+                Session session = service.Create(options);
+
+                UoW.OrderHeader.UpdateStripePaymentID(ShoppingCartVM.OrderHeader.Id, session.Id, session.PaymentIntentId);
+                UoW.Save();
+                Response.Headers.Add("Location", session.Url);
+                return new StatusCodeResult(303);
 			}
 
 			return RedirectToAction(nameof(OrderConfirmation),new {id=ShoppingCartVM.OrderHeader.Id});
