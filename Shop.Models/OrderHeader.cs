@@ -21,9 +21,10 @@ namespace Shop.Models
         public string? TrackingNumber { get; set; }
         public string? Carrier { get; set; }
 
-        public DateTime PaymentData { get; set; }
+        public DateTime PaymentDate { get; set; }
         public DateTime PaymentDueData { get; set; }
 
+        public string SessionId { get; set; }
         public string? PaymentIntentId { get; set; }
 
         [Required]
