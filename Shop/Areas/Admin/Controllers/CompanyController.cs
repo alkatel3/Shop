@@ -84,7 +84,7 @@ namespace Shop.Areas.Admin.Controllers
                 return Json(new { success = false, message = "Error while deleting" });
             }
 
-            UoW.Company.Delete(Company);
+            UoW.Company.Remove(Company);
             UoW.Save();
             return Json(new { success = true, message = "Delete successful" });
         }

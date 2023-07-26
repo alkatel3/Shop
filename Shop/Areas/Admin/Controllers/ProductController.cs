@@ -136,7 +136,7 @@ namespace Shop.Areas.Admin.Controllers
                 System.IO.File.Delete(oldImagePath);
             }
 
-            UoW.Product.Delete(product);
+            UoW.Product.Remove(product);
             UoW.Save();
             return Json(new { success = true, message = "Delete successful" });
         }

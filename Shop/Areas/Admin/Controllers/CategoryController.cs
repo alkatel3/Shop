@@ -104,7 +104,7 @@ namespace Shop.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            UoW.Category.Delete(category);
+            UoW.Category.Remove(category);
             UoW.Save();
             TempData["success"] = "Category deleted successfully";
             return RedirectToAction("Index");

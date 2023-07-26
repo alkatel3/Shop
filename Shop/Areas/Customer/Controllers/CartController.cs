@@ -56,7 +56,7 @@ namespace Shop.Areas.Customer.Controllers
             var cartDb = UoW.ShoppingCart.Get(c => c.Id == cartId);
             if (cartDb.Count <= 1)
             {
-                UoW.ShoppingCart.Delete(cartDb);
+                UoW.ShoppingCart.Remove(cartDb);
             }
             else
             {
@@ -73,7 +73,7 @@ namespace Shop.Areas.Customer.Controllers
             var cartDb = UoW.ShoppingCart.Get(c => c.Id == cartId);
             if (cartDb != null)
             {
-                UoW.ShoppingCart.Delete(cartDb);
+                UoW.ShoppingCart.Remove(cartDb);
                 UoW.Save();
             }
             return RedirectToAction(nameof(Index));
@@ -199,6 +199,26 @@ namespace Shop.Areas.Customer.Controllers
 
         public IActionResult OrderConfirmation(int id)
         {
+            OrderHeader orderHeader = UoW.OrderHeader.Get(o => o.Id == id, includeProperties: "ApplicationUser");
+            if (orderHeader.PaymentStatus != SD.PaymentStatusDelayedPayment)
+            {
+                //this is an order by customer
+                var service = new SessionService();
+                Session session = service.Get(orderHeader.SessionId);
+
+                if (session.PaymentStatus.ToLower() == "paid")
+                {
+					UoW.OrderHeader.UpdateStripePaymentID(ShoppingCartVM.OrderHeader.Id, session.Id, session.PaymentIntentId);
+                    UoW.OrderHeader.UpdaneStatus(ShoppingCartVM.OrderHeader.Id, SD.StatusApproved, SD.PaymentStatusApproved);
+					UoW.Save();
+				}
+			}
+
+            List<ShoppingCart> shoppingCarts = UoW.ShoppingCart
+                .GetAll(u => u.ApplicationUserId == orderHeader.ApplicationUserId).ToList();
+
+            UoW.ShoppingCart.RemoveRange(shoppingCarts);
+            UoW.Save();
             return View(id);
         }
 
