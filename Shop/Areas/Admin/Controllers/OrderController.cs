@@ -6,6 +6,7 @@ using Shop.Models;
 
 namespace Shop.Areas.Admin.Controllers
 {
+	[Area("admin")]
 	public class OrderController : Controller
 	{
 		private readonly IUnitOfWork UoW;
