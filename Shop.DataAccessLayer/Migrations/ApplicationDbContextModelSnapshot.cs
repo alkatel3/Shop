@@ -688,7 +688,7 @@ namespace Shop.DataAccessLayer.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Shop.Models.Product", "product")
+                    b.HasOne("Shop.Models.Product", "Product")
                         .WithMany()
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -696,7 +696,7 @@ namespace Shop.DataAccessLayer.Migrations
 
                     b.Navigation("OrderHeader");
 
-                    b.Navigation("product");
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("Shop.Models.OrderHeader", b =>

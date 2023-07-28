@@ -17,7 +17,7 @@ namespace Shop.Models
         public int ProductId { get; set; }
         [ForeignKey("ProductId")]
         [ValidateNever]
-        public Product product { get; set; }   
+        public Product Product { get; set; }   
 
         public int Count { get; set; }
         public double Price { get; set; }

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Shop.DataAccessLayer.Repository;
 using Shop.DataAccessLayer.Repository.IRepository;
 using Shop.Models;
+using Shop.Models.ViewModels;
 using Shop.Utility;
 using System.Diagnostics;
 
@@ -23,8 +24,18 @@ namespace Shop.Areas.Admin.Controllers
 			return View();
 		}
 
-		#region API CALLS
-		[HttpGet]
+        public IActionResult Details(int orderId)
+        {
+            OrderVM order = new()
+            {
+                OrderHeader = UoW.OrderHeader.Get(o => o.Id == orderId, includeProperties:"ApplicationUser"),
+                OrderDetails=UoW.OrderDetail.GetAll(o=>o.OrderHeaderId==orderId, includeProperties:"Product"),
+            };
+            return View(order);
+        }
+
+        #region API CALLS
+        [HttpGet]
 		public IActionResult GetAll(string status)
 		{
 			IEnumerable<OrderHeader> orderHeaders = UoW.OrderHeader.GetAll(includeProperties: "ApplicationUser").ToList();
