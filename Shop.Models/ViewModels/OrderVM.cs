@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 
 namespace Shop.Models.ViewModels
 {
-	internal class OrderVM
+	public class OrderVM
 	{
+		public OrderHeader OrderHeader { get; set; }
+		public IEnumerable<OrderDetail> OrderDetails { get; set; }
 	}
 }
