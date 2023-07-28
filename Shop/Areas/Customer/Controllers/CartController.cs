@@ -208,8 +208,8 @@ namespace Shop.Areas.Customer.Controllers
 
                 if (session.PaymentStatus.ToLower() == "paid")
                 {
-					UoW.OrderHeader.UpdateStripePaymentID(ShoppingCartVM.OrderHeader.Id, session.Id, session.PaymentIntentId);
-                    UoW.OrderHeader.UpdaneStatus(ShoppingCartVM.OrderHeader.Id, SD.StatusApproved, SD.PaymentStatusApproved);
+					UoW.OrderHeader.UpdateStripePaymentID(id, session.Id, session.PaymentIntentId);
+                    UoW.OrderHeader.UpdaneStatus(id, SD.StatusApproved, SD.PaymentStatusApproved);
 					UoW.Save();
 				}
 			}
