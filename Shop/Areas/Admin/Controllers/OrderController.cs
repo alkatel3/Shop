@@ -6,6 +6,7 @@ using Shop.DataAccessLayer.Repository.IRepository;
 using Shop.Models;
 using Shop.Models.ViewModels;
 using Shop.Utility;
+using Stripe;
 using System.Diagnostics;
 using System.Security.Claims;
 
@@ -100,6 +101,35 @@ namespace Shop.Areas.Admin.Controllers
             UoW.Save();
 
             TempData["Success"] = "Order Shipped Successfully.";
+            return RedirectToAction(nameof(Details), new { orderId = OrderVM.OrderHeader.Id });
+        }
+
+        [HttpPost]
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Employee)]
+        public IActionResult CancelOrder()
+        {
+            var orderHeader = UoW.OrderHeader.Get(o => o.Id == OrderVM.OrderHeader.Id);
+
+            if (orderHeader.PaymentStatus == SD.PaymentStatusApproved)
+            {
+                var options = new RefundCreateOptions
+                {
+                    Reason = RefundReasons.RequestedByCustomer,
+                    PaymentIntent = orderHeader.PaymentIntentId,
+                };
+
+                var service = new RefundService();
+                Refund refund = service.Create(options);
+
+                UoW.OrderHeader.UpdaneStatus(orderHeader.Id, SD.StatusCancelled, SD.StatusRefunded);
+            }
+            else
+            {
+                UoW.OrderHeader.UpdaneStatus(orderHeader.Id, SD.StatusCancelled, SD.StatusCancelled);
+            }
+            UoW.Save();
+
+            TempData["Success"] = "Order Cancelled Successfully.";
             return RedirectToAction(nameof(Details), new { orderId = OrderVM.OrderHeader.Id });
         }
 
