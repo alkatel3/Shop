@@ -18,7 +18,7 @@ namespace Shop.DataAccessLayer.Repository
             dbSet.Update(orderHeader);
         }
 
-		public void UpdaneStatus(int id, string orderStatus, string? paymentStatus = null)
+		public void UpdateStatus(int id, string orderStatus, string? paymentStatus = null)
 		{
             var orderFromDb = db.OrderHeaders.FirstOrDefault(o => o.Id == id);
             if(orderFromDb != null)

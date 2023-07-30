@@ -7,6 +7,7 @@ using Shop.Models;
 using Shop.Models.ViewModels;
 using Shop.Utility;
 using Stripe;
+using Stripe.Checkout;
 using System.Diagnostics;
 using System.Security.Claims;
 
@@ -75,7 +76,7 @@ namespace Shop.Areas.Admin.Controllers
         [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Employee)]
         public IActionResult StartProcessing()
         {
-            UoW.OrderHeader.UpdaneStatus(OrderVM.OrderHeader.Id, SD.StatusInProcess);
+            UoW.OrderHeader.UpdateStatus(OrderVM.OrderHeader.Id, SD.StatusInProcess);
             UoW.Save();
 
             TempData["Success"]  = "Order Details Updated Successfully.";
@@ -121,11 +122,11 @@ namespace Shop.Areas.Admin.Controllers
                 var service = new RefundService();
                 Refund refund = service.Create(options);
 
-                UoW.OrderHeader.UpdaneStatus(orderHeader.Id, SD.StatusCancelled, SD.StatusRefunded);
+                UoW.OrderHeader.UpdateStatus(orderHeader.Id, SD.StatusCancelled, SD.StatusRefunded);
             }
             else
             {
-                UoW.OrderHeader.UpdaneStatus(orderHeader.Id, SD.StatusCancelled, SD.StatusCancelled);
+                UoW.OrderHeader.UpdateStatus(orderHeader.Id, SD.StatusCancelled, SD.StatusCancelled);
             }
             UoW.Save();
 
@@ -133,6 +134,76 @@ namespace Shop.Areas.Admin.Controllers
             return RedirectToAction(nameof(Details), new { orderId = OrderVM.OrderHeader.Id });
         }
 
+        [ActionName("Details")]
+        [HttpPost]
+        public IActionResult Details_PAY_NOW()
+        {
+            OrderVM.OrderHeader = UoW.OrderHeader
+                .Get(u => u.Id == OrderVM.OrderHeader.Id, includeProperties: "ApplicationUser");
+            OrderVM.OrderDetails = UoW.OrderDetail
+                .GetAll(u => u.OrderHeaderId == OrderVM.OrderHeader.Id, includeProperties: "Product");
+
+            //stripe logic
+            var domain = "https://localhost:7293/";
+            var options = new SessionCreateOptions
+            {
+                SuccessUrl = domain + $"admin/order/PaymentConfirmation?orderHeaderId={OrderVM.OrderHeader.Id}",
+                CancelUrl = domain + $"admin/order/details?orderId={OrderVM.OrderHeader.Id}",
+                LineItems = new List<SessionLineItemOptions>(),
+                Mode = "payment",
+            };
+
+            foreach (var order in OrderVM.OrderDetails)
+            {
+                var sessionLineItem = new SessionLineItemOptions
+                {
+                    PriceData = new SessionLineItemPriceDataOptions
+                    {
+                        UnitAmount = (long)(order.Price * 100), // $20.50 => 2050
+                        Currency = "usd",
+                        ProductData = new SessionLineItemPriceDataProductDataOptions
+                        {
+                            Name = order.Product.Title
+                        }
+                    },
+                    Quantity = order.Count
+                };
+                options.LineItems.Add(sessionLineItem);
+            }
+
+
+            var service = new SessionService();
+            Session session = service.Create(options);
+            UoW.OrderHeader.UpdateStripePaymentID(OrderVM.OrderHeader.Id, session.Id, session.PaymentIntentId);
+            UoW.Save();
+            Response.Headers.Add("Location", session.Url);
+            return new StatusCodeResult(303);
+        }
+
+        public IActionResult PaymentConfirmation(int orderHeaderId)
+        {
+
+            OrderHeader orderHeader = UoW.OrderHeader.Get(u => u.Id == orderHeaderId);
+            if (orderHeader.PaymentStatus == SD.PaymentStatusDelayedPayment)
+            {
+                //this is an order by company
+
+                var service = new SessionService();
+                Session session = service.Get(orderHeader.SessionId);
+
+                if (session.PaymentStatus.ToLower() == "paid")
+                {
+                    UoW.OrderHeader.UpdateStripePaymentID(orderHeaderId, session.Id, session.PaymentIntentId);
+                    UoW.OrderHeader.UpdateStatus(orderHeaderId, orderHeader.OrderStatus, SD.PaymentStatusApproved);
+                    UoW.Save();
+                }
+
+
+            }
+
+
+            return View(orderHeaderId);
+        }
         #region API CALLS
         [HttpGet]
         public IActionResult GetAll(string status)
