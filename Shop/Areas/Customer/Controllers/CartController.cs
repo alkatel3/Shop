@@ -53,9 +53,11 @@ namespace Shop.Areas.Customer.Controllers
         }
         public IActionResult Minus(int cartId)
         {
-            var cartDb = UoW.ShoppingCart.Get(c => c.Id == cartId);
+            var cartDb = UoW.ShoppingCart.Get(c => c.Id == cartId, tracked: true);
             if (cartDb.Count <= 1)
             {
+                HttpContext.Session.SetInt32(SD.SessionCart,
+                 UoW.ShoppingCart.GetAll(c => c.ApplicationUserId == cartDb.ApplicationUserId).Count()-1);
                 UoW.ShoppingCart.Remove(cartDb);
             }
             else
@@ -70,9 +72,11 @@ namespace Shop.Areas.Customer.Controllers
         }
         public IActionResult Remove(int cartId)
         {
-            var cartDb = UoW.ShoppingCart.Get(c => c.Id == cartId);
+            var cartDb = UoW.ShoppingCart.Get(c => c.Id == cartId, tracked:true);
             if (cartDb != null)
             {
+                HttpContext.Session.SetInt32(SD.SessionCart,
+                UoW.ShoppingCart.GetAll(c => c.ApplicationUserId == cartDb.ApplicationUserId).Count()-1);
                 UoW.ShoppingCart.Remove(cartDb);
                 UoW.Save();
             }
