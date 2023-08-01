@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Shop.DataAccessLayer.Repository.IRepository;
 using Shop.Models;
+using Shop.Utility;
 using System.Diagnostics;
 using System.Security.Claims;
 
@@ -52,14 +54,18 @@ namespace Shop.Areas.Customer.Controllers
             {
                 CardDb.Count += cart.Count;
                 UoW.ShoppingCart.Update(CardDb);
+                UoW.Save();
             }
             else
             {
                 UoW.ShoppingCart.Add(cart);
+                UoW.Save();
+                HttpContext.Session.SetInt32(SD.SessionCart, 
+                    UoW.ShoppingCart.GetAll(c => c.ApplicationUserId == userId).Count());
             }
             TempData["success"] = "Cart updated successfully"
 ;
-            UoW.Save();
+
 
             return RedirectToAction("Index");
         }
