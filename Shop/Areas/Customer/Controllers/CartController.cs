@@ -216,6 +216,7 @@ namespace Shop.Areas.Customer.Controllers
                     UoW.OrderHeader.UpdateStatus(id, SD.StatusApproved, SD.PaymentStatusApproved);
 					UoW.Save();
 				}
+                HttpContext.Session.Clear();
 			}
 
             List<ShoppingCart> shoppingCarts = UoW.ShoppingCart
