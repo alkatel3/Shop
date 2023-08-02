@@ -27,6 +27,30 @@ namespace Shop.Areas.Admin.Controllers
             return View();
         }
 
+        public IActionResult RoleManagment(string userId)
+        {
+            string RoleId = db.UserRoles.FirstOrDefault(u => u.UserId == userId).RoleId;
+
+            RoleManagmentVM RoleVM = new()
+            {
+                ApplicationUser = db.ApplicationUsers.Include(u => u.Company).FirstOrDefault(u => u.Id == userId),
+                RoleList = db.Roles.Select(i => new SelectListItem
+                {
+                    Text = i.Name,
+                    Value = i.Name
+                }),
+                CompanyList = db.Companies.Select(i => new SelectListItem
+                {
+                    Text = i.Name,
+                    Value = i.Id.ToString()
+                })
+            };
+
+            RoleVM.ApplicationUser.Role = db.Roles.FirstOrDefault(u => u.Id == RoleId).Name;
+        
+            return View(RoleVM);
+        }
+
         #region API CALLS
         [HttpGet]
         public IActionResult GetAll()
