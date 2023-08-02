@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -16,10 +17,12 @@ namespace Shop.Areas.Admin.Controllers
     public class UserController : Controller
     {
         private readonly ApplicationDbContext db;
+        private readonly UserManager<IdentityUser> userManager;
 
-        public UserController(ApplicationDbContext db)
+        public UserController(ApplicationDbContext db, UserManager<IdentityUser> userManager)
         {
             this.db = db;
+            this.userManager = userManager;
         }
 
         public IActionResult Index()
@@ -49,6 +52,31 @@ namespace Shop.Areas.Admin.Controllers
             RoleVM.ApplicationUser.Role = db.Roles.FirstOrDefault(u => u.Id == RoleId).Name;
         
             return View(RoleVM);
+        }
+
+        [HttpPost]
+        public IActionResult RoleManagment(RoleManagmentVM roleManagmentVM)
+        {
+            string RoleId = db.UserRoles.FirstOrDefault(u => u.UserId == roleManagmentVM.ApplicationUser.Id).RoleId;
+            string oldRole = db.Roles.FirstOrDefault(u => u.Id == RoleId).Name;
+
+            if (!(roleManagmentVM.ApplicationUser.Role == oldRole))
+            {
+                ApplicationUser applicationUser = db.ApplicationUsers.FirstOrDefault(u => u.Id == roleManagmentVM.ApplicationUser.Id);
+                if (roleManagmentVM.ApplicationUser.Role == SD.Role_Company)
+                {
+                    applicationUser.CompanyId = roleManagmentVM.ApplicationUser.CompanyId;
+                }
+                if (oldRole == SD.Role_Company)
+                {
+                    applicationUser.CompanyId = null;
+                }
+                db.SaveChanges();
+                userManager.RemoveFromRoleAsync(applicationUser, oldRole).GetAwaiter().GetResult();
+                userManager.AddToRoleAsync(applicationUser, roleManagmentVM.ApplicationUser.Role).GetAwaiter().GetResult();
+            }
+
+            return RedirectToAction(nameof(Index));
         }
 
         #region API CALLS
