@@ -26,10 +26,10 @@ namespace Shop.DataAccessLayer.Repository
                 productDb.Description = product.Description;
                 productDb.CategoryId = product.CategoryId;
                 productDb.Author = product.Author;
-                if(product.ImageUrl != null)
-                {
-                    productDb.ImageUrl = product.ImageUrl;
-                }
+                //if(product.ImageUrl != null)
+                //{
+                //    productDb.ImageUrl = product.ImageUrl;
+                //}
             }
         }
     }

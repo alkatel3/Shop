@@ -13,6 +13,7 @@ namespace Shop.DataAccessLayer.Repository
         public IApplicationUserRepository ApplicationUser { get; private set; }
         public IOrderDetailRepository OrderDetail { get; private set; }
         public IOrderHeaderRepository OrderHeader { get; private set; }
+        public IProductImageRepository ProductImage { get; private set; }
 
         public UnitOfWork(ApplicationDbContext db)
         {
@@ -24,6 +25,7 @@ namespace Shop.DataAccessLayer.Repository
             Company = new CompanyRepository(db);
             OrderDetail = new OrderDetailRepository(db);
             OrderHeader = new OrderHeaderRepository(db);
+            ProductImage = new ProductImageRepository(db);
         }
 
         public void Save()
