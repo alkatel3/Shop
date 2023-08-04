@@ -23,7 +23,7 @@ namespace Shop.Areas.Customer.Controllers
 
         public IActionResult Index()
         {
-            IEnumerable<Product> productList = UoW.Product.GetAll(includeProperties: "Category");
+            IEnumerable<Product> productList = UoW.Product.GetAll(includeProperties: "Category,ProductImages");
             return View(productList);
         }
 
@@ -31,7 +31,7 @@ namespace Shop.Areas.Customer.Controllers
         {
             ShoppingCart cart = new()
             {
-                Product = UoW.Product.Get(p => p.Id == id, includeProperties: "Category"),
+                Product = UoW.Product.Get(p => p.Id == id, includeProperties: "Category,ProductImages"),
                 Count = 1,
                 ProductId =id
             };

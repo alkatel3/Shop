@@ -35,8 +35,11 @@ namespace Shop.Areas.Customer.Controllers
                 OrderHeader = new OrderHeader()
             };
 
+            IEnumerable<ProductImage> productImages = UoW.ProductImage.GetAll();
+
             foreach (var cart in ShoppingCartVM.ShoppingCartList)
             {
+                cart.Product.ProductImages = productImages.Where(i => i.ProductId == cart.ProductId).ToList();
                 cart.Price = GetPriceBasedOnQuantity(cart);
                 ShoppingCartVM.OrderHeader.OrderTotal += cart.Price * cart.Count;
             }
