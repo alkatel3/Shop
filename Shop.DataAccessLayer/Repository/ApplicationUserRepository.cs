@@ -12,5 +12,10 @@ namespace Shop.DataAccessLayer.Repository
         {
             this.db = db;
         }
+
+        public void Update(ApplicationUser applicationUser)
+        {
+            dbSet.Update(applicationUser);
+        }
     }
 }

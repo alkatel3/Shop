@@ -16,13 +16,14 @@ namespace Shop.Areas.Admin.Controllers
     [Authorize(Roles = SD.Role_Admin)]
     public class UserController : Controller
     {
-        private readonly ApplicationDbContext db;
+        private readonly IUnitOfWork UoW;
         private readonly UserManager<IdentityUser> userManager;
-
-        public UserController(ApplicationDbContext db, UserManager<IdentityUser> userManager)
+        private readonly RoleManager<IdentityRole> roleManager;
+        public UserController(IUnitOfWork unitOfWork, UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
         {
-            this.db = db;
+            UoW = unitOfWork;
             this.userManager = userManager;
+            this.roleManager = roleManager;
         }
 
         public IActionResult Index()
@@ -32,24 +33,23 @@ namespace Shop.Areas.Admin.Controllers
 
         public IActionResult RoleManagment(string userId)
         {
-            string RoleId = db.UserRoles.FirstOrDefault(u => u.UserId == userId).RoleId;
-
             RoleManagmentVM RoleVM = new()
             {
-                ApplicationUser = db.ApplicationUsers.Include(u => u.Company).FirstOrDefault(u => u.Id == userId),
-                RoleList = db.Roles.Select(i => new SelectListItem
+                ApplicationUser = UoW.ApplicationUser.Get(u => u.Id == userId, includeProperties: "Company"),
+                RoleList = roleManager.Roles.Select(i => new SelectListItem
                 {
                     Text = i.Name,
                     Value = i.Name
                 }),
-                CompanyList = db.Companies.Select(i => new SelectListItem
+                CompanyList = UoW.Company.GetAll().Select(i => new SelectListItem
                 {
                     Text = i.Name,
                     Value = i.Id.ToString()
                 })
             };
 
-            RoleVM.ApplicationUser.Role = db.Roles.FirstOrDefault(u => u.Id == RoleId).Name;
+            RoleVM.ApplicationUser.Role = userManager.GetRolesAsync(UoW.ApplicationUser.Get(u => u.Id == userId))
+                .GetAwaiter().GetResult().FirstOrDefault();
         
             return View(RoleVM);
         }
@@ -57,12 +57,13 @@ namespace Shop.Areas.Admin.Controllers
         [HttpPost]
         public IActionResult RoleManagment(RoleManagmentVM roleManagmentVM)
         {
-            string RoleId = db.UserRoles.FirstOrDefault(u => u.UserId == roleManagmentVM.ApplicationUser.Id).RoleId;
-            string oldRole = db.Roles.FirstOrDefault(u => u.Id == RoleId).Name;
+            string oldRole = userManager.GetRolesAsync(UoW.ApplicationUser.Get(u => u.Id == roleManagmentVM.ApplicationUser.Id))
+                .GetAwaiter().GetResult().FirstOrDefault();
+
+            ApplicationUser applicationUser = UoW.ApplicationUser.Get(u => u.Id == roleManagmentVM.ApplicationUser.Id);
 
             if (!(roleManagmentVM.ApplicationUser.Role == oldRole))
             {
-                ApplicationUser applicationUser = db.ApplicationUsers.FirstOrDefault(u => u.Id == roleManagmentVM.ApplicationUser.Id);
                 if (roleManagmentVM.ApplicationUser.Role == SD.Role_Company)
                 {
                     applicationUser.CompanyId = roleManagmentVM.ApplicationUser.CompanyId;
@@ -71,9 +72,19 @@ namespace Shop.Areas.Admin.Controllers
                 {
                     applicationUser.CompanyId = null;
                 }
-                db.SaveChanges();
+                UoW.ApplicationUser.Update(applicationUser);
+                UoW.Save();
                 userManager.RemoveFromRoleAsync(applicationUser, oldRole).GetAwaiter().GetResult();
                 userManager.AddToRoleAsync(applicationUser, roleManagmentVM.ApplicationUser.Role).GetAwaiter().GetResult();
+            }
+            else
+            {
+                if(oldRole==SD.Role_Company && applicationUser.CompanyId != roleManagmentVM.ApplicationUser.CompanyId)
+                {
+                    applicationUser.CompanyId = roleManagmentVM.ApplicationUser.CompanyId;
+                    UoW.ApplicationUser.Update(applicationUser);
+                    UoW.Save();
+                }
             }
 
             return RedirectToAction(nameof(Index));
@@ -83,15 +94,11 @@ namespace Shop.Areas.Admin.Controllers
         [HttpGet]
         public IActionResult GetAll()
         {
-            List<ApplicationUser> users = db.ApplicationUsers.Include(u=>u.Company).ToList();
-
-            var userRoles = db.UserRoles.ToList();
-            var roles = db.Roles.ToList();
+            List<ApplicationUser> users = UoW.ApplicationUser.GetAll(includeProperties: "Company").ToList();
 
             foreach(var user in users)
             {
-                var roleId = userRoles.FirstOrDefault(r => r.UserId == user.Id).RoleId;
-                user.Role = roles.FirstOrDefault(r => r.Id == roleId).Name;
+                user.Role = userManager.GetRolesAsync(user).GetAwaiter().GetResult().FirstOrDefault();
 
                 if (user.Company == null)
                 {
@@ -105,7 +112,7 @@ namespace Shop.Areas.Admin.Controllers
         [HttpPost]
         public IActionResult LockUnlock([FromBody]string id)
         {
-            var userDb = db.ApplicationUsers.FirstOrDefault(u => u.Id == id);
+            var userDb = UoW.ApplicationUser.Get(u => u.Id == id);
             if (userDb == null)
             {
                 return Json(new { success = false, message = "Error while Locking/Unlocking" });
@@ -120,8 +127,8 @@ namespace Shop.Areas.Admin.Controllers
             {
                 userDb.LockoutEnd = DateTime.Now.AddYears(1000);
             }
-
-            db.SaveChanges();
+            UoW.ApplicationUser.Update(userDb);
+            UoW.Save();
 
             return Json(new { success = true, message = "Operation successful" });
         }
