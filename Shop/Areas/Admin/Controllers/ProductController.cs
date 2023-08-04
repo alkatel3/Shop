@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Shop.DataAccessLayer.Repository;
 using Shop.DataAccessLayer.Repository.IRepository;
 using Shop.Models;
 using Shop.Models.ViewModels;
@@ -55,46 +57,56 @@ namespace Shop.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public IActionResult Upsert(ProductVM productVM, IFormFile? file)
+        public IActionResult Upsert(ProductVM productVM, List<IFormFile> files)
         {
             if (ModelState.IsValid)
             {
-                string wwwRootPath = webHostEnvironment.WebRootPath;
-                if (file != null)
-                {
-                //    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-                //    string productPath = Path.Combine(wwwRootPath, @"images\product");
-
-                //    if (!string.IsNullOrEmpty(productVM.Product.ImageUrl))
-                //    {
-                //        //delete the old image
-                //        var oldImagePath =
-                //            Path.Combine(wwwRootPath, productVM.Product.ImageUrl.TrimStart('\\'));
-                //        if (System.IO.File.Exists(oldImagePath))
-                //        {
-                //            System.IO.File.Delete(oldImagePath);
-                //        }
-                //    }
-
-                //    using (var fileStream = new FileStream(Path.Combine(productPath, fileName), FileMode.Create))
-                //    {
-                //        file.CopyTo(fileStream);
-                //    }
-
-                //    productVM.Product.ImageUrl = @"\images\product\" + fileName;
-                }
                 if (productVM.Product.Id == 0)
                 {
                     UoW.Product.Add(productVM.Product);
                 }
                 else
                 {
-
                     UoW.Product.Update(productVM.Product);
                 }
 
                 UoW.Save();
-                TempData["success"] = "Category created successfully";
+
+                string wwwRootPath = webHostEnvironment.WebRootPath;
+                if (files != null)
+                {
+
+                    foreach (IFormFile file in files)
+                    {
+                        string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                        string productPath = @"images\products\product-" + productVM.Product.Id;
+                        string finalPath = Path.Combine(wwwRootPath, productPath);
+
+                        if (!Directory.Exists(finalPath))
+                            Directory.CreateDirectory(finalPath);
+
+                        using (var fileStream = new FileStream(Path.Combine(finalPath, fileName), FileMode.Create))
+                        {
+                            file.CopyTo(fileStream);
+                        }
+
+                        ProductImage productImage = new()
+                        {
+                            ImageUrl = @"\" + productPath + @"\" + fileName,
+                            ProductId = productVM.Product.Id,
+                        };
+
+                        if (productVM.Product.ProductImages == null)
+                            productVM.Product.ProductImages = new List<ProductImage>();
+
+                        productVM.Product.ProductImages.Add(productImage);
+                    }
+
+                    UoW.Product.Update(productVM.Product);
+                    UoW.Save();
+                }
+
+                TempData["success"] = "Product created/updated successfully";
                 return RedirectToAction("Index");
             }
             else

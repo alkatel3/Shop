@@ -26,6 +26,7 @@ namespace Shop.DataAccessLayer.Repository
                 productDb.Description = product.Description;
                 productDb.CategoryId = product.CategoryId;
                 productDb.Author = product.Author;
+                productDb.ProductImages = product.ProductImages;
                 //if(product.ImageUrl != null)
                 //{
                 //    productDb.ImageUrl = product.ImageUrl;
