@@ -124,6 +124,29 @@ namespace Shop.Areas.Admin.Controllers
             }
         }
 
+        public IActionResult DeleteImage(int imageId)
+        {
+            var imageToBeDeleted = UoW.ProductImage.Get(i => i.Id == imageId);
+            int productId = imageToBeDeleted.ProductId;
+            if (imageToBeDeleted != null)
+            {
+                if (!string.IsNullOrEmpty(imageToBeDeleted.ImageUrl))
+                {
+                    var oldImagePath =
+                        Path.Combine(webHostEnvironment.WebRootPath, imageToBeDeleted.ImageUrl.TrimStart('\\'));
+                    if (System.IO.File.Exists(oldImagePath))
+                    {
+                        System.IO.File.Delete(oldImagePath);
+                    }
+                }
+                UoW.ProductImage.Remove(imageToBeDeleted);
+                UoW.Save();
+
+                TempData["success"] = "Deleted successfully";
+            }
+            return RedirectToAction(nameof(Upsert), new { id = productId });
+        }
+
         #region API CALLS
         [HttpGet]
         public IActionResult GetAll()
