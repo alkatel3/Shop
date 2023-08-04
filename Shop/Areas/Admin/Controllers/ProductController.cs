@@ -1,12 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Shop.DataAccessLayer.Repository;
 using Shop.DataAccessLayer.Repository.IRepository;
 using Shop.Models;
 using Shop.Models.ViewModels;
 using Shop.Utility;
+using Stripe;
 using System.Data;
 
 namespace Shop.Areas.Admin.Controllers
@@ -26,7 +25,7 @@ namespace Shop.Areas.Admin.Controllers
 
         public IActionResult Index()
         {
-            List<Product> products = UoW.Product.GetAll(includeProperties: "Category").ToList();
+            List<Models.Product> products = UoW.Product.GetAll(includeProperties: "Category").ToList();
             return View(products);
         }
 
@@ -40,7 +39,7 @@ namespace Shop.Areas.Admin.Controllers
                     Text = c.Name,
                     Value = c.Id.ToString()
                 }),
-                Product = new Product()
+                Product = new Models.Product()
             };
             if (id == null || id==0)
             {
@@ -151,7 +150,7 @@ namespace Shop.Areas.Admin.Controllers
         [HttpGet]
         public IActionResult GetAll()
         {
-            List<Product> products = UoW.Product.GetAll(includeProperties: "Category").ToList();
+            List<Models.Product> products = UoW.Product.GetAll(includeProperties: "Category").ToList();
             return Json(new { data = products });
         }
 
@@ -163,13 +162,19 @@ namespace Shop.Areas.Admin.Controllers
             {
                 return Json(new { success = false, message = "Error while deleting" });
             }
+            string productPath = @"images\products\product-" + id;
+            string finalPath = Path.Combine(webHostEnvironment.WebRootPath, productPath);
 
-            //var oldImagePath =
-            //    Path.Combine(webHostEnvironment.WebRootPath, product.ImageUrl.TrimStart('\\'));
-            //if (System.IO.File.Exists(oldImagePath))
-            //{
-            //    System.IO.File.Delete(oldImagePath);
-            //}
+            if (Directory.Exists(finalPath))
+            {
+                string[] filePaths = Directory.GetFiles(finalPath);
+                foreach(string filePath in filePaths)
+                {
+                    System.IO.File.Delete(filePath); 
+                }
+
+                Directory.Delete(finalPath);
+            }
 
             UoW.Product.Remove(product);
             UoW.Save();
