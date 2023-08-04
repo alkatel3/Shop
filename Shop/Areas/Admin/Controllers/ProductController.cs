@@ -50,7 +50,7 @@ namespace Shop.Areas.Admin.Controllers
             else
             {
                 //Update
-                productVM.Product = UoW.Product.Get(p => p.Id == id);
+                productVM.Product = UoW.Product.Get(p => p.Id == id, includeProperties: "ProductImages");
                 return View(productVM);
 
             }
